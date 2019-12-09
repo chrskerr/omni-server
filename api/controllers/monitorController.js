@@ -14,16 +14,21 @@ async function getPiStatus () {
         output.uname = { stdout, stderr } = await exec('uname -nro');
         
         output.free = { stdout, stderr } = await exec('free -h'); 
-        output.free.stdout = output.free.stdout.split('\n');
-        output.free.stdout = output.free.stdout.map(function(each) {return each.split(/\s+/)});
-        output.free.stdout[0].unshift('');
+        output.free.human = output.free.stdout.split('\n').map(function(each) {return each.split(/\s+/)});
+        output.free.human[0].unshift('');
         
         output.df = { stdout, stderr } = await exec('df -h'); 
-        output.df.stdout = output.df.stdout.split('\n');
-        output.df.stdout = output.df.stdout.map(function(each) {return each.split(/\s+/)})
-        output.df.stdout[0][5] += ' ' + output.df.stdout[0][6]; // wrong on Mac, should work on Pi
-        output.df.stdout[0].pop(); // this and line above used to combine back into a single element
+        output.df.human = output.df.stdout.split('\n').map(function(each) {return each.split(/\s+/)});
+        output.df.human[0][5] += ' ' + output.df.human[0][6]; // wrong on Mac, should work on Pi
+        output.df.human[0].pop(); // this and line above used to combine back into a single element
         
+        output.cpu_temp = { stdout, stderr } = await exec('cat /sys/class/thermal/thermal_zone0/temp');
+        output.cpu_temp.human = (output.cpu_temp.stdout / 1000).toFixed(1);
+
+        output.gpu_temp = { stdout, stderr } = await exec('vcgencmd measure_temp');
+        const gVal = output.gpu_temp;
+        output.gpu_temp.human = gVal.slice(gVal.indexOf('=')+1,gVal.indexOf("'"));
+
         return output;
   } catch (err) {
      console.error(err);
