@@ -26,7 +26,7 @@ async function getPiStatus () {
         output.cpu_temp.human = (output.cpu_temp.stdout / 1000).toFixed(1);
 
         output.gpu_temp = { stdout, stderr } = await exec('vcgencmd measure_temp');
-        const gVal = output.gpu_temp;
+        const gVal = output.gpu_temp.stdout;
         output.gpu_temp.human = gVal.slice(gVal.indexOf('=')+1,gVal.indexOf("'"));
 
         return output;
