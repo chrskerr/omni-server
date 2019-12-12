@@ -29,7 +29,7 @@ async function getPiStatus () {
         const gVal = output.gpu_temp.stdout;
         output.gpu_temp.human = gVal.slice(gVal.indexOf('=')+1,gVal.indexOf("'"));
 
-	output.top = { stdout, stderr } = await exec("top -b -n 1 -o VIRT");
+	output.top = { stdout, stderr } = await exec("top -b -n 1 -o %MEM");
 	output.top.human = output.top.stdout.split('\n');
 	output.top.first = output.top.human.splice(0,6);
         output.top.human = output.top.human.splice(0,15).map(function(each) {return each.split(/^\s*|\s\s+/)});
