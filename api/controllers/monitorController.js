@@ -10,12 +10,12 @@ async function getPiStatus () {
     let output = {};
 
     try {
-        output.uptime = { stdout, stderr } = await exec('uptime');
-        output.uname = { stdout, stderr } = await exec('uname -nro');
+//        output.uptime = { stdout, stderr } = await exec('uptime');
+//        output.uname = { stdout, stderr } = await exec('uname -nro');
         
-        output.free = { stdout, stderr } = await exec('free -h'); 
-        output.free.human = output.free.stdout.split('\n').map(function(each) {return each.split(/\s+/)});
-        output.free.human[0].unshift('');
+//        output.free = { stdout, stderr } = await exec('free -h'); 
+//        output.free.human = output.free.stdout.split('\n').map(function(each) {return each.split(/\s+/)});
+//        output.free.human[0].unshift('');
         
         output.df = { stdout, stderr } = await exec('df -h'); 
         output.df.human = output.df.stdout.split('\n').map(function(each) {return each.split(/\s+/)});
