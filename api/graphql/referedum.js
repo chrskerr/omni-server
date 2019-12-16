@@ -23,8 +23,8 @@ const schema = buildSchema(`
         getIssue(issueId: String!): Issue,
         getIssues: [Issue],
         getIdentifier(licence: String!, state: String!, surname: String!): Identifier,
-        getToken(issueId: String!, identifier: String!): Token,
-        giveToken(token: String!, vote: Boolean!): Confirmation
+        getToken(issueId: String!, licence: String!, state: String!, surname: String!): Token,
+        giveToken(token: String!, response: String!): Confirmation
     },
     type Issue {
         issueId: String,
@@ -59,11 +59,14 @@ const getIssue = async function ({issueId}) {
 
 const getToken = (args) => {
     // need to add a token check for uniqness - if ( token.save() ) 
-    // token generation is currently bad
-    // need to check that they havne't voted in this issue yet too
-    
+    // math.Random() is 16 decimal places, then md5 that with the IssueId, shoudl always be unique.
+
+    // need to re-check ID here too!
+    // need to double-check that they havne't voted in this issue yet too
+
+
     return {
-        token: md5(`${Math.random()}${args.issueId}`),
+        token: md5(`${Math.random()}-${args.issueId}`),
     }
 };
 
@@ -71,8 +74,17 @@ const getIdentifier = (args) => {
     // this is where the RTA check should occur 
     // TO-DO check this again
 
+    // these are always coming out the same
+
     return {
-        identifier: md5(args)
+        identifier: md5( JSON.stringify(args) )
+    }
+};
+
+const saveToken = ( args ) => {
+
+    return {
+        message: 'token received'
     }
 };
 
@@ -81,7 +93,7 @@ const root = {
     getIssue: getIssue,
     getIssues: getIssue,
     getToken: getToken,
-    giveToken: () => {return {message: 'token received'}},
+    giveToken: saveToken,
     getIdentifier: getIdentifier
 };
 

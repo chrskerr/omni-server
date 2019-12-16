@@ -36,7 +36,8 @@ const votes = new Schema({
         unique: true
     },
     issue: String,
-    status: String
+    status: String,
+    response: String
 }, { collection: 'votes' });
 
 module.exports = mongoose.model('votes', votes);
