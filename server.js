@@ -4,10 +4,11 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose'); 
 
 mongoose.Promise = global.Promise;
-mongoose.set('useFindAndModify', false);
 mongoose.connect(
     `mongodb://127.0.0.1:27017/`,
     { 
+        useFindAndModify: true,
+        useCreateIndex: true,
         useNewUrlParser: true,
         useUnifiedTopology: true 
     }

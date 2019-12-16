@@ -3,7 +3,9 @@ const expressGraphql = require('express-graphql');
 const { buildSchema } = require('graphql');
 const md5 = require('md5');
 const mongoose = require('mongoose');
-const Issue = mongoose.model('issues');
+const Issues = mongoose.model('issues');
+const People = mongoose.model('people');
+const Votes = mongoose.model('votes');
 
 module.exports = app => {
   
@@ -18,9 +20,10 @@ module.exports = app => {
 
 const schema = buildSchema(`
     type Query {
-        getIssue(issueId: String): Issue,
+        getIssue(issueId: String!): Issue,
         getIssues: [Issue],
-        getToken(issueId: String!, licence: Int!, surname: String): Token,
+        getIdentifier(licence: String!, state: String!, surname: String!): Identifier,
+        getToken(issueId: String!, identifier: String!): Token,
         giveToken(token: String!, vote: Boolean!): Confirmation
     },
     type Issue {
@@ -34,28 +37,42 @@ const schema = buildSchema(`
     },
     type Token {
         token: String,
-        message: String
     },
     type Confirmation {
         message: String
+    },
+    type Identifier {
+        identifier: String
     }
 `);
 
 /// Graphql models
 const getIssue = async function ({issueId}) {
     if (issueId) {
-        const res = await Issue.findOne({issueId: issueId})
+        const res = await Issues.findOne({issueId: issueId})
         return res
     } else { 
-        const res = Issue.find({})
+        const res = Issues.find({})
         return res
     }
 };
 
 const getToken = (args) => {
+    // need to add a token check for uniqness - if ( token.save() ) 
+    // token generation is currently bad
+    // need to check that they havne't voted in this issue yet too
+    
     return {
-        token: md5(`${Math.random()}${args.issueId}`), // need to add a token check for uniqness
-        message: 'success'
+        token: md5(`${Math.random()}${args.issueId}`),
+    }
+};
+
+const getIdentifier = (args) => {
+    // this is where the RTA check should occur 
+    // TO-DO check this again
+
+    return {
+        identifier: md5(args)
     }
 };
 
@@ -64,6 +81,7 @@ const root = {
     getIssue: getIssue,
     getIssues: getIssue,
     getToken: getToken,
-    giveToken: () => {return {message: 'token received'}}
+    giveToken: () => {return {message: 'token received'}},
+    getIdentifier: getIdentifier
 };
 
