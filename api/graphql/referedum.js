@@ -3,7 +3,7 @@ const expressGraphql = require('express-graphql');
 const { buildSchema } = require('graphql');
 const md5 = require('md5');
 const mongoose = require('mongoose');
-const Propositions = mongoose.model('propositions');
+const Issue = mongoose.model('issues');
 
 module.exports = app => {
   
@@ -18,14 +18,19 @@ module.exports = app => {
 
 const schema = buildSchema(`
     type Query {
-        getProp(prop: String): Prop,
-        getProps: [Prop],
-        getToken(prop: String!, licence: Int!, surname: String): Token,
+        getIssue(issueId: String): Issue,
+        getIssues: [Issue],
+        getToken(issueId: String!, licence: Int!, surname: String): Token,
         giveToken(token: String!, vote: Boolean!): Confirmation
     },
-    type Prop {
-        prop: String,
-        description: String
+    type Issue {
+        issueId: String,
+        question: String,
+        summary: String,
+        description: String,
+        caseFor: String,
+        caseAgainst: String,
+        closeDate: String
     },
     type Token {
         token: String,
@@ -37,34 +42,27 @@ const schema = buildSchema(`
 `);
 
 /// Graphql models
-const getProp = async function ({prop}) {
-    if (prop) {
-        const res = await Propositions.findOne({prop: prop})
-        return {
-            prop: res.prop,
-            description: res.description
-        }
-    } else { 
-        const res = Propositions.find({})
+const getIssue = async function ({issueId}) {
+    if (issueId) {
+        const res = await Issue.findOne({issueId: issueId})
         return res
-    }
-    return {
-        prop: "7",
-        desc: 'some'
+    } else { 
+        const res = Issue.find({})
+        return res
     }
 };
 
 const getToken = (args) => {
     return {
-        token: md5(`${Math.random()}${args.prop}`), // need to add a token check for uniqness
+        token: md5(`${Math.random()}${args.issueId}`), // need to add a token check for uniqness
         message: 'success'
     }
 };
 
 // Graphql controller
 const root = {
-    getProp: getProp,
-    getProps: getProp,
+    getIssue: getIssue,
+    getIssues: getIssue,
     getToken: getToken,
     giveToken: () => {return {message: 'token received'}}
 };

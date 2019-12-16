@@ -3,10 +3,18 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const propositions = new Schema({
-    prop: String,
+const issues = new Schema({
+    issueId: {
+        type: String,
+        unique: true
+    },
+    question: String,
+    summary: String,
     description: String,
-}, { collection: 'propositions' });
+    caseFor: String,
+    caseAgainst: String,
+    closeDate: Date
+}, { collection: 'issues' });
 
-module.exports = mongoose.model('propositions', propositions);
+module.exports = mongoose.model('issues', issues);
 
