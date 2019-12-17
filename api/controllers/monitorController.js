@@ -32,7 +32,9 @@ async function getPiStatus () {
 	output.top = { stdout, stderr } = await exec("top -b -n 1 -o %MEM");
 	output.top.human = output.top.stdout.split('\n');
 	output.top.first = output.top.human.splice(0,6);
-        output.top.human = output.top.human.splice(0,15).map(function(each) {return each.split(/^\s*|\s\s+/)});
+        output.top.human = output.top.human.splice(0,15).map(function(each) {
+		return each.trim().split(/\s+/)
+	});
 
         return output;
   } catch (err) {
