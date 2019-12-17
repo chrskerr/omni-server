@@ -6,7 +6,8 @@ const { Schema } = mongoose;
 const issues = new Schema({
     issueId: {
         type: String,
-        unique: true
+        unique: true,
+        index: true
     },
     question: String,
     summary: String,
@@ -20,11 +21,12 @@ module.exports = mongoose.model('issues', issues);
 
 const people = new Schema({
     identifier: String,
-    issue: String,
+    issueId: String,
     status: String,
     hash: {
         type: String,
-        unique: true
+        unique: true,
+        index: true
     }
 }, { collection: 'people' });
 
@@ -33,9 +35,10 @@ module.exports = mongoose.model('people', people);
 const votes = new Schema({
     token: {
         type: String,
-        unique: true
+        unique: true,
+        index: true
     },
-    issue: String,
+    issueId: String,
     status: String,
     response: String
 }, { collection: 'votes' });
