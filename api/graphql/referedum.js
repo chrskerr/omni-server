@@ -118,15 +118,13 @@ const getIdentifier = (args) => {
 };
 
 const giveToken = ( args ) => {
-    console.log('here')
-
     Person.updateOne({
         identifier: args.identifier,
         issueId: args.issueId
     }, {
         status: 'token returned'
     }).then( (res) => {
-        console.log('person', res)
+        //console.log('person', res)
     });
     Vote.updateOne({
         token: args.token
@@ -134,7 +132,7 @@ const giveToken = ( args ) => {
         status: 'token returned',
         response: args.response
     }).then( (res) => {
-        console.log('vote', res)
+        //console.log('vote', res)
     });
 
     return {
