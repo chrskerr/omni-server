@@ -1,7 +1,7 @@
 // graphql routes 
 const expressGraphql = require('express-graphql');
 const { buildSchema } = require('graphql');
-const md5 = require('md5');
+const crypto = require('crypto')
 const mongoose = require('mongoose');
 const Issue = mongoose.model('issues');
 const Person = mongoose.model('people');
@@ -59,6 +59,9 @@ const getIssue = async function ({issueId}) {
 };
 
 const getToken = async function (args) {
+    // to-do: delete
+    // user is just going to get a token for asking
+
     
     const { identifier } = await getIdentifier(args);
 
@@ -73,8 +76,12 @@ const getToken = async function (args) {
     }
 
     const createToken = async (issueId) => {
+        
+        const token = crypto.createHash('sha256');
+        token.update(`${Math.random()}-${issueId}`, 'utf8');
+        
         const output = await Vote.create({
-            token: md5(`${Math.random()}-${issueId}`),
+            token: token.digest('hex'),
             issueId: issueId,
             status: 'token issued'
         })
@@ -108,12 +115,12 @@ const getToken = async function (args) {
 
 const getIdentifier = (args) => {
     // this is where the RTA check should occur 
-    // TO-DO check this again
 
-    // these are always coming out the same
+    const identifier = crypto.createHash('sha256');
+    identifier.update(args.licence, 'utf8');
 
     return {
-        identifier: md5(`${args.licence}`)
+        identifier: identifier.digest('hex')
     }
 };
 

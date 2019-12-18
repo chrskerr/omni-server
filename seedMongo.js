@@ -26,7 +26,6 @@ const word1 = new Issue({
     caseAgainst: "I've never heard a worse idea in my life!",
     description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam obcaecati animi exercitationem modi laudantium. Debitis esse dicta ad nisi porro quo suscipit provident, voluptatum labore iste aperiam officia incidunt neque!'
 })
-
 word1.save()
 
 const word2 = new Issue({
