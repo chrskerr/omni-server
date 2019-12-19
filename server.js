@@ -1,22 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose'); 
 
-mongoose.Promise = global.Promise;
-mongoose.connect(
-    `mongodb://127.0.0.1:27017/`,
-    { 
-        useFindAndModify: true,
-        useCreateIndex: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true 
-    }
-);
-
-global.Propositions = require('./api/models/referendumModel.js')
-
-// global.Url = require('./api/models/Model.js');
 const routes = require('./api/routes/Routes.js');
 const referendum = require('./api/graphql/referedum.js')
 

@@ -26,8 +26,13 @@ class Blockchain {
     }
 
     getIdentifier(args) {
-        const identifier = crypto.createHash('sha256').update(`${args.licence}`, 'utf8').digest('hex');
+        const identifier = crypto.createHash('sha256').update(`${args.licence}${args.stage}${args.surname}`, 'utf8').digest('hex');
         return identifier;
+    }
+
+    personsVoteHistory(identifier) {
+        // to do, calculate this from Votes table
+        return [1, 3]
     }
 
     recordVote(args) {
@@ -35,14 +40,12 @@ class Blockchain {
         const voteHash = crypto.createHash('sha256').update(`${identifier}-${args.issueId}`, 'utf8').digest('hex');
 
         if (this.db.prepare("SELECT * FROM Votes WHERE Identifier = ?").all(identifier).length > 0) {
-            return {
-                message: "You have already voted"
-            }
+            return "You have already voted"
         } else {
             const newVote = this.db.prepare("INSERT INTO Votes (identifier, IssueID, Hash, HashVersion) VALUES (?, ?, ?, ?)").run(identifier, args.issueId, voteHash, 1)
 
             console.log(newVote)
-
+            return "New user created"
 
         }
 

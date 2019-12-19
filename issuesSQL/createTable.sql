@@ -1,5 +1,5 @@
 CREATE TABLE Issues (
-    IssueId integer NOT NULL CONSTRAINT IssueID_pk PRIMARY KEY AUTOINCREMENT,   
+    issueId integer NOT NULL CONSTRAINT IssueID_pk PRIMARY KEY AUTOINCREMENT,   
     question text NOT NULL,
     summary text NOT NULL,
     description text NOT NULL,
