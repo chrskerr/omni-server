@@ -19,4 +19,5 @@ class Issues {
 
 }
 
-module.exports = new Issues('/Users/chris/myProjects/omni-server/issuesSQL/issues.sqlite3');
+// module.exports = new Issues('/Users/chris/myProjects/omni-server/issuesSQL/issues.sqlite3');
+module.exports = new Issues('/home/pi/omni-server/issuesSQL/issues.sqlite3');

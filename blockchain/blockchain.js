@@ -134,5 +134,6 @@ class Blockchain {
 }
 
 
-module.exports = new Blockchain('/Users/chris/myProjects/omni-server/blockchain/blockchain.sqlite3');
+// module.exports = new Blockchain('/Users/chris/myProjects/omni-server/blockchain/blockchain.sqlite3');
+module.exports = new Blockchain('/home/pi/omni-server/blockchain/blockchain.sqlite3');
 
