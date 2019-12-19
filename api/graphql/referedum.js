@@ -7,6 +7,9 @@ const Issue = mongoose.model('issues');
 const Person = mongoose.model('people');
 const Vote = mongoose.model('votes');
 
+const Issues = require('../../issuesSQL/issuesSQL.js');
+const Blockchain = require('../../blockchain/blockchain.js')
+
 module.exports = app => {
   
   app.use('/referendums/graphql', expressGraphql({
@@ -19,14 +22,14 @@ module.exports = app => {
 
 const schema = buildSchema(`
     type Query {
-        getIssue(issueId: String!): Issue,
+        getIssue(issueId: Int!, identifier: String): Issue,
         getIssues(identifier: String): [Issue],
         getIdentifier(licence: String!, state: String!, surname: String!): Identifier,
         getToken(issueId: String!, licence: String!, state: String!, surname: String!): Token,
         giveToken(token: String, response: String, identifier: String, issueId: String): Confirmation
     },
     type Issue {
-        issueId: String,
+        issueId: Int,
         question: String,
         summary: String,
         description: String,
@@ -62,7 +65,7 @@ const getToken = async function (args) {
     // to-do: delete
     // user is just going to get a token for asking
 
-    
+
     const { identifier } = await getIdentifier(args);
 
     const createPerson = async (args) => {
@@ -149,9 +152,21 @@ const giveToken = ( args ) => {
 
 // Graphql controller
 const root = {
-    getIssue: getIssue,
-    getIssues: getIssue,
+    getIssue: (issueId, identifier) => {
+        return Issues.getOne(issueId)
+        },
+    getIssues: (identifier) => {
+        return Issues.getAll();
+        },
     getToken: getToken,
     giveToken: giveToken,
     getIdentifier: getIdentifier
 };
+
+// getIssues & getIssue, useful for populating pages
+// getIdentifiery === checkLicence, very useful, and I liked providing a token here in response, higher security than just passing back a true, which could potentially be hacked (?), but then we'd still need a second to
+
+console.log(Blockchain.recordVote({
+    issueId: "1",
+    licence: '12345'
+}))
