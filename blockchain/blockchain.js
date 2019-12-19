@@ -12,7 +12,6 @@ class Blockchain {
 
     constructor (dbFileLoc) {
         this.db = new sqlite3(dbFileLoc, { verbose: console.log });
-        this.db.pragma("foreign_keys = ON");
     }
 
     dataDump() {
@@ -32,55 +31,105 @@ class Blockchain {
 
     personsVoteHistory(identifier) {
         // to do, calculate this from Votes table
-        return [1, 3]
+        const arr = this.db.prepare("SELECT IssueID FROM Votes WHERE Identifier = ?").all(identifier)
+
+        const output = arr.map((object) => {
+            object.IssueID
+        })
+
+        console.log(output)
+
+        return [1,3]
     }
 
     recordVote(args) {
+        // TO DO determine if voting has expired for an issue
+
         const identifier = this.getIdentifier(args);
-        const voteHash = crypto.createHash('sha256').update(`${identifier}-${args.issueId}`, 'utf8').digest('hex');
+        const voteHash = crypto.createHash('sha256').update(`${identifier}${args.issueId}`, 'utf8').digest('hex');
+        const token = crypto.createHash('sha256').update(`${Math.random()}-${Math.random()}-${args.issueId}`, 'utf8').digest('hex');
 
-        if (this.db.prepare("SELECT * FROM Votes WHERE Identifier = ?").all(identifier).length > 0) {
-            return "You have already voted"
+        console.log(token, 'token')
+
+        const tokenHash = crypto.createHash('sha256').update(`${token}${args.response}${args.issueId}`, 'utf8').digest('hex');
+
+        if (this.db.prepare("SELECT * FROM Votes WHERE Hash = ?").all(voteHash).length > 0) {
+            return {
+                    message: '',
+                    error: "You have already voted"
+                }
         } else {
-            const newVote = this.db.prepare("INSERT INTO Votes (identifier, IssueID, Hash, HashVersion) VALUES (?, ?, ?, ?)").run(identifier, args.issueId, voteHash, 1)
+            const blockID = this.findCurrentBlock()
 
-            console.log(newVote)
-            return "New user created"
+            this.db.prepare("INSERT INTO Votes (identifier, IssueID, Hash, HashVersion) VALUES (?, ?, ?, ?)").run(identifier, args.issueId, voteHash, 1);
 
+            this.db.prepare("INSERT INTO Transactions (TransactionHash, TransactionType, BlockID) VALUES (?, ?, ?)").run(voteHash, "vote", blockID );
+
+            this.db.prepare("UPDATE Blocks SET TransactionCount = TransactionCount + 1 WHERE BlockID = ?").run(blockID)
+
+            this.db.prepare("INSERT INTO Tokens (Token, Response, IssueID, Hash, HashVersion) VALUES (?, ?, ?, ?, ?)").run(token, args.response, args.issueId, tokenHash, 1);
+
+            this.db.prepare("INSERT INTO Transactions (TransactionHash, TransactionType, BlockID) VALUES (?, ?, ?)").run(tokenHash, "token", blockID );
+
+            this.db.prepare("UPDATE Blocks SET TransactionCount = TransactionCount + 1 WHERE BlockID = ?").run(blockID)
+
+            this.mineBlock(blockID);
+
+            return {
+                message: "Vote accepted",
+                error: ""
+            }
         }
-
-        // check that the user has not voted yet
-
-        // find current block, call another method
-
-        // insert new vote linked to appropriate block
-
-        // return success / failure 
     }
 
     findCurrentBlock() {
-        // db lookup to find the most recent block. Largest auto-incremented blockId seems best.
 
-        // if transaction count is above 100: create a new block, link it to the previous. call mineBlock on the previous, and then return the new ID.
+        const blocks = this.db.prepare("SELECT BlockID FROM Blocks").all();
 
-        // https://stackoverflow.com/questions/41949724/how-does-db-serialize-work-in-node-sqlite3 
-        // this could be handy to help ensure order of operations?
+        let output = 1;
 
-        // if transaction count is okay: return ID
+        blocks.forEach( (object) => {
+            if (object.BlockID > output) output = object.BlockID
+        })
+
+        return output
     }
 
     mineBlock(blockId) {
-        // pull all the linked Votes to that block and the info contained with previous block? 
-        // hash these all together ? 
+        
+        const block = this.db.prepare("SELECT * FROM Blocks WHERE BlockID = ?").get(blockId);
+
+        if (block.TransactionCount >= 6) {
+            this.db.prepare("INSERT INTO Blocks (PrevBlockID) VALUES (?)").run(blockId); 
+
+            const BlockSignature = crypto.privateEncrypt(privateKey, Buffer.from([
+                this.db.prepare("SELECT * FROM Transactions WHERE BlockID = ?").all(blockId),
+                blockId,
+                block.TransactionCount,
+                block.PrevBlockSignature
+            ])).toString('base64');
+            
+            this.db.prepare("UPDATE Blocks SET Signature = $signature, SignatureVersion = $signatureVer WHERE BlockID = $blockID").run({
+                signature: BlockSignature,
+                signatureVer: 1,
+                blockID: blockId
+            });
+
+            this.db.prepare("UPDATE Blocks SET PrevBlockSignature = @signature WHERE PrevBlockID = @blockID").run({
+                signature: BlockSignature,
+                blockID: blockId
+            });
+        }
+        
         let input = Buffer.from('A hash of all the blocks maybe?', 'utf8');
-        const output = crypto.privateEncrypt(privateKey, input).toString('base64');
 
         // https://nodejs.org/api/crypto.html
     }
 
-    // decryptBlock(signedString) {
-    //     const origData = crypto.publicDecrypt(publicKey, Buffer.from(signedString, 'base64'))
-    // }
+
+    decryptBlock(signedString) {
+        const origData = crypto.publicDecrypt(publicKey, Buffer.from(signedString, 'base64'))
+    }
 
 }
 

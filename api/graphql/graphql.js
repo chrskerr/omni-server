@@ -43,7 +43,8 @@ const schema = buildSchema(`
     },
 
     type Confirmation {
-        message: String
+        message: String,
+        error: String
     }
 `);
 
@@ -56,9 +57,7 @@ const root = {
         return Issues.getAll(args);
         },
     recordVote: (args) => {
-        return {
-            message: Blockchain.recordVote(args)
-        }
+        return Blockchain.recordVote(args)
     },
     checkIdentity: (args) => {
         const identifier = Blockchain.getIdentifier(args);

@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const routes = require('./api/routes/Routes.js');
-const referendum = require('./api/graphql/referedum.js')
+const referendum = require('./api/graphql/graphql.js')
 
 const port = process.env.PORT || 3125;
 const server = express();
