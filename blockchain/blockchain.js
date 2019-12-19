@@ -3,10 +3,10 @@ const crypto = require('crypto');
 const fs = require('fs');
 
 const privateKey = {
-    key: fs.readFileSync("/Users/chris/myProjects/private.pem", 'utf8').toString(),
+    key: fs.readFileSync("/home/pi/private.pem", 'utf8').toString(),
     passphrase: 'block'
 };
-const publicKey = fs.readFileSync('/Users/chris/myProjects/public.pem', 'utf8').toString();
+// const publicKey = fs.readFileSync('./public.pem', 'utf8').toString();
 
 class Blockchain {
 
@@ -127,9 +127,9 @@ class Blockchain {
     }
 
 
-    decryptBlock(signedString) {
-        const origData = crypto.publicDecrypt(publicKey, Buffer.from(signedString, 'base64'))
-    }
+    // decryptBlock(signedString) {
+    //     const origData = crypto.publicDecrypt(publicKey, Buffer.from(signedString, 'base64'))
+    // }
 
 }
 
