@@ -18,12 +18,9 @@ module.exports = app => {
 
 const schema = buildSchema(`
     type Query {
-        
         getIssue(issueId: Int!, identifier: String): Issue,
-        getIssues(identifier: String): [Issue],
-        
-        checkIdentity(licence: String!, state: String!, surname: String!): Identifier,
-        
+        getIssues(identifier: String): [Issue],    
+        checkIdentity(licence: String!, state: String!, surname: String!): Identifier,      
         recordVote(issueId: Int!, response: String!, licence: String!, state: String!, surname: String!): Confirmation,
     },
 
