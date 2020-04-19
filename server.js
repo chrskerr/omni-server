@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-const routes = require('./api/routes/Routes.js');
+// const routes = require('./api/routes/Routes.js');
 const referendum = require('./api/graphql/graphql.js')
 
 const port = process.env.PORT || 3125;
@@ -29,7 +29,7 @@ server.use(bodyParser.urlencoded({extended: true}));
 server.use(bodyParser.json());
 
 referendum(server);
-routes(server);
+// routes(server);
 server.listen(port);
 
 server.use((req, res) => {

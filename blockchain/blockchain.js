@@ -9,7 +9,6 @@ const privateKey = {
 // const publicKey = fs.readFileSync('./public.pem', 'utf8').toString();
 
 class Blockchain {
-
     constructor (dbFileLoc) {
         this.db = new sqlite3(dbFileLoc, { verbose: console.log });
     }
@@ -30,7 +29,7 @@ class Blockchain {
     }
 
     personsVoteHistory(identifier) {
-        // to do, calculate this from Votes table
+        // TO-DO: make this work
         const arr = this.db.prepare("SELECT IssueID FROM Votes WHERE Identifier = ?").all(identifier)
 
         const output = arr.map((object) => {
@@ -43,14 +42,10 @@ class Blockchain {
     }
 
     recordVote(args) {
-        // TO DO determine if voting has expired for an issue
-
+        // TO DO: determine if voting has expired for an issue
         const identifier = this.getIdentifier(args);
         const voteHash = crypto.createHash('sha256').update(`${identifier}${args.issueId}`, 'utf8').digest('hex');
         const token = crypto.createHash('sha256').update(`${Math.random()}-${Math.random()}-${args.issueId}`, 'utf8').digest('hex');
-
-        console.log(token, 'token')
-
         const tokenHash = crypto.createHash('sha256').update(`${token}${args.response}${args.issueId}`, 'utf8').digest('hex');
 
         if (this.db.prepare("SELECT * FROM Votes WHERE Hash = ?").all(voteHash).length > 0) {
@@ -58,19 +53,16 @@ class Blockchain {
                     message: '',
                     error: "You have already voted"
                 }
+
         } else {
             const blockID = this.findCurrentBlock()
 
             this.db.prepare("INSERT INTO Votes (identifier, IssueID, Hash, HashVersion) VALUES (?, ?, ?, ?)").run(identifier, args.issueId, voteHash, 1);
-
             this.db.prepare("INSERT INTO Transactions (TransactionHash, TransactionType, BlockID) VALUES (?, ?, ?)").run(voteHash, "vote", blockID );
-
             this.db.prepare("UPDATE Blocks SET TransactionCount = TransactionCount + 1 WHERE BlockID = ?").run(blockID)
 
             this.db.prepare("INSERT INTO Tokens (Token, Response, IssueID, Hash, HashVersion) VALUES (?, ?, ?, ?, ?)").run(token, args.response, args.issueId, tokenHash, 1);
-
             this.db.prepare("INSERT INTO Transactions (TransactionHash, TransactionType, BlockID) VALUES (?, ?, ?)").run(tokenHash, "token", blockID );
-
             this.db.prepare("UPDATE Blocks SET TransactionCount = TransactionCount + 1 WHERE BlockID = ?").run(blockID)
 
             this.mineBlock(blockID);
@@ -83,25 +75,21 @@ class Blockchain {
     }
 
     findCurrentBlock() {
-
         const blocks = this.db.prepare("SELECT BlockID FROM Blocks").all();
-
         let output = 1;
-
         blocks.forEach( (object) => {
             if (object.BlockID > output) output = object.BlockID
         })
-
         return output
     }
 
     mineBlock(blockId) {
-        
         const block = this.db.prepare("SELECT * FROM Blocks WHERE BlockID = ?").get(blockId);
 
         if (block.TransactionCount >= 6) {
             this.db.prepare("INSERT INTO Blocks (PrevBlockID) VALUES (?)").run(blockId); 
 
+            // https://nodejs.org/api/crypto.html
             const BlockSignature = crypto.privateEncrypt(privateKey, Buffer.from([
                 this.db.prepare("SELECT * FROM Transactions WHERE BlockID = ?").all(blockId),
                 blockId,
@@ -120,10 +108,6 @@ class Blockchain {
                 blockID: blockId
             });
         }
-        
-        let input = Buffer.from('A hash of all the blocks maybe?', 'utf8');
-
-        // https://nodejs.org/api/crypto.html
     }
 
 
@@ -133,7 +117,5 @@ class Blockchain {
 
 }
 
-
 // module.exports = new Blockchain('/Users/chris/myProjects/omni-server/blockchain/blockchain.sqlite3');
 module.exports = new Blockchain('/home/pi/omni-server/blockchain/blockchain.sqlite3');
-

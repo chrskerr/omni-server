@@ -39,4 +39,4 @@ CREATE TABLE Votes (
 );
 
 
-INSERT INTO Blocks (BlockID, PrevBlockID, PrevBlockSignature) VALUES (1, 0, "12345");
+INSERT INTO Blocks (BlockID, PrevBlockID) VALUES (1, 0);
