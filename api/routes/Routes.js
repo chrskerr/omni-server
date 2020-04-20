@@ -1,9 +1,9 @@
-const monitor = require('../controllers/monitorController')
+const monitor = require( "../controllers/monitorController" );
 
 module.exports = app => {
 
-  app
-    .route('/monitor')
-    .get(monitor.show)
+	app
+		.route( "/monitor" )
+		.get( monitor.show );
 
 };
