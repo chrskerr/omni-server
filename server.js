@@ -10,13 +10,10 @@ const referendum = require( "./api/graphql/graphql.js" );
 const port = process.env.PORT || 3125;
 const server = express();
 
-/// re-add when not using graphiql
-
 const whitelist = [ /localhost/, /chrskerr\.com/, /wevote\.org\.au/ ];
 const corsOptionsDelegate = ( req, callback ) => {
 	let corsOptions;
 	whitelist.forEach( e => {
-		console.log( req.header( "Origin" ));
 		if ( req.header( "Origin" ).match( e ) !== -1 ) {
 			corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
 		} else {
